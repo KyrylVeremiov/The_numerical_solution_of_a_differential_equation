@@ -124,7 +124,7 @@ for i in range(m+1):
 
 # print(u_t_d)
 
-MSE=(abs(u_t_d-u)**2).sum()
+MSE=(abs(u_t_d-u)**2).sum()/((n+1)*(m+1))
 print("MSE: ",MSE)
 
 X = np.linspace(a1,b1,n+1)
