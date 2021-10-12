@@ -147,7 +147,7 @@ ax = fig.add_subplot(projection='3d')
 # The resulting function
 ax.plot_surface(X, Y, u, cmap='plasma')
 plt.title("Numerical_solution")
-# plt.savefig("Numerical_solution.png")
+plt.savefig("Numerical_solution.png")
 plt.show()
 
 # Original function
@@ -155,12 +155,12 @@ fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 ax.plot_surface(X, Y, u_t(X, Y), cmap='plasma')
 plt.title("Original function")
-# plt.savefig("Original_function.png")
+plt.savefig("Original_function.png")
 plt.show()
 
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 ax.plot_surface(X, Y, u_t(X, Y) - u, cmap='plasma')
 plt.title("Residues")
-# plt.savefig("Residues.png")
+plt.savefig("Residues.png")
 plt.show()
