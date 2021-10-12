@@ -30,111 +30,137 @@ h2 = (b2 - a2) / m
 
 q = 1
 
+
 def f(x, y):
     return x ** 2 * (y ** 3) + x + x * y - 2 * (y ** 3) - 6 * y * (x ** 2)
 
-def phi1(x,y):
+
+def phi1(x, y):
     return x
 
-def phi2(x,y):
-    return y**3+1+y
 
-def phi3(x,y):
-    return 8*(x**2)+x+2*x
+def phi2(x, y):
+    return y ** 3 + 1 + y
 
-def phi4(x,y):
-    return -1-y
 
-def phi(x,y):
-    if y==a2:
-        return phi1(x,y)
-    elif x==b1:
-        return phi2(x,y)
+def phi3(x, y):
+    return 8 * (x ** 2) + x + 2 * x
+
+
+def phi4(x, y):
+    return -1 - y
+
+
+def phi(x, y):
+    if y == a2:
+        return phi1(x, y)
+    elif x == b1:
+        return phi2(x, y)
     elif y == b2:
         return phi3(x, y)
-    elif x==a1:
-        return phi4(x,y)
+    elif x == a1:
+        return phi4(x, y)
     else:
         raise IOError("Error in phi")
+
 
 # %%
 # формирование матрицы A и правой части b СЛАУ Au=b
 A = np.zeros((n * (m - 1), n * (m - 1)))
-B = np.zeros((n * (m - 1),1))
+B = np.zeros((n * (m - 1), 1))
 
 a = 2 / (h1 * h1) + 2 / (h2 * h2)
 b = -1 / (h1 * h1)
 c = -1 / (h2 * h2)
 d = 1 / h1
 for i in range(n * (m - 1)):
-    x = a1 + (i%n) * h1
-    y = a2 + (int(i/m)+1) * h2
+    x = a1 + (i % n) * h1
+    y = a2 + (int(i / m) + 1) * h2
     if i % n == 0:
         A[i, i] = 1 + d
         A[i, i + 1] = -d
-        B[i]=phi(x,y)
+        B[i] = phi(x, y)
     elif i % n == n - 1:
         A[i, i] = a + q
         A[i, i - 1] = b
-        B[i]= f(x,y)-b*phi(b1,y)
+        B[i] = f(x, y) - b * phi(b1, y)
         if i + n < n * (m - 1):
             A[i, i + n] = c
         else:
-            B[i]-=c*phi(x,b2)
+            B[i] -= c * phi(x, b2)
         if i - n > 0:
             A[i, i - n] = c
         else:
-            B[i]-=c*phi(x,a2)
+            B[i] -= c * phi(x, a2)
     else:
         A[i, i] = a + q
         A[i, i - 1] = b
         A[i, i + 1] = b
-        B[i]= f(x,y)
+        B[i] = f(x, y)
         if i + n < n * (m - 1):
             A[i, i + n] = c
         else:
-            B[i]-=c*phi(x,b2)
+            B[i] -= c * phi(x, b2)
         if i - n > 0:
             A[i, i - n] = c
         else:
             B[i] -= c * phi(x, a2)
 
-U=np.linalg.solve(A, B)
-u=np.zeros((m-1,n))
-for i in range(m-1):
+U = np.linalg.solve(A, B)
+u = np.zeros((m - 1, n))
+for i in range(m - 1):
     for j in range(n):
-        u[i,j]=U[i*n+j]
+        u[i, j] = U[i * n + j]
 
 # print(u)
-Phi2=np.array([[phi2(a1,a2+i*h2) for i in range(m-1)]]).T
+Phi2 = np.array([[phi2(a1, a2 + i * h2) for i in range(m - 1)]]).T
 # print(Phi2)
-u=np.c_[u,Phi2]
-#The resulting function
-u=np.r_[np.array([[phi1(a1+i*h1,a2) for i in range(n+1)]]),u,np.array([[phi3(a1+i*h1,a2) for i in range(n+1)]])]
-print("The resulting function",u)
+u = np.c_[u, Phi2]
+# The resulting function
+u = np.r_[np.array([[phi1(a1 + i * h1, a2) for i in range(n + 1)]]), u, np.array(
+    [[phi3(a1 + i * h1, a2) for i in range(n + 1)]])]
+print("The resulting function", u)
 
-#%% Check
-def u_t(x,y):
-    return x**2*(y**3)+x+x*y
-u_t_d=np.zeros((m+1,n+1))
 
-for i in range(m+1):
-    for j in range(n+1):
-        u_t_d[i,j]=u_t(a1+h1*j,a2+h2*i)
+# %% Check
+def u_t(x, y):
+    return x ** 2 * (y ** 3) + x + x * y
+
+
+u_t_d = np.zeros((m + 1, n + 1))
+
+for i in range(m + 1):
+    for j in range(n + 1):
+        u_t_d[i, j] = u_t(a1 + h1 * j, a2 + h2 * i)
 
 # print(u_t_d)
 
-MSE=(abs(u_t_d-u)**2).sum()/((n+1)*(m+1))
-print("MSE: ",MSE)
+MSE = (abs(u_t_d - u) ** 2).sum() / ((n + 1) * (m + 1))
+print("MSE: ", MSE)
 
-X = np.linspace(a1,b1,n+1)
-Y = np.linspace(a2,b2,m+1)
-X,Y= np.meshgrid(X, Y)
+X = np.linspace(a1, b1, n + 1)
+Y = np.linspace(a2, b2, m + 1)
+X, Y = np.meshgrid(X, Y)
 
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
-#The resulting function
-ax.plot_surface(X,Y,u,cmap='plasma')
+# The resulting function
+ax.plot_surface(X, Y, u, cmap='plasma')
+plt.title("Numerical_solution")
+# plt.savefig("Numerical_solution.png")
+plt.show()
+
 # Original function
-ax.plot_surface(X,Y,u_t(X,Y),cmap='copper')
-fig.canvas.show()
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.plot_surface(X, Y, u_t(X, Y), cmap='plasma')
+plt.title("Original function")
+# plt.savefig("Original_function.png")
+plt.show()
+
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.plot_surface(X, Y, u_t(X, Y) - u, cmap='plasma')
+plt.title("Residues")
+# plt.savefig("Residues.png")
+plt.show()
