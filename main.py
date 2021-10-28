@@ -8,7 +8,7 @@
 # В этом случае: f(x)=x^2*y^3+x+xy-2y^3-6yx^2
 
 
-# Здесь q(x) >= 0 на (a,b) ???????????????????????/
+# Здесь q(x) >= 0 на (a,b)
 # %%
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,7 +24,7 @@ n = 50
 h1 = (b1 - a1) / n
 
 # кол-во промежутков по Oy
-m = 50
+m = 100
 # шаг по Oy
 h2 = (b2 - a2) / m
 
@@ -73,30 +73,23 @@ a = 2 / (h1 * h1) + 2 / (h2 * h2)
 b = -1 / (h1 * h1)
 c = -1 / (h2 * h2)
 d = 1 / h1
+
 for i in range(n * (m - 1)):
     x = a1 + (i % n) * h1
-    y = a2 + (int(i / m) + 1) * h2
+    y = a2 + (int(i / n) + 1) * h2
     if i % n == 0:
         A[i, i] = 1 + d
         A[i, i + 1] = -d
         B[i] = phi(x, y)
-    elif i % n == n - 1:
-        A[i, i] = a + q
-        A[i, i - 1] = b
-        B[i] = f(x, y) - b * phi(b1, y)
-        if i + n < n * (m - 1):
-            A[i, i + n] = c
-        else:
-            B[i] -= c * phi(x, b2)
-        if i - n > 0:
-            A[i, i - n] = c
-        else:
-            B[i] -= c * phi(x, a2)
     else:
         A[i, i] = a + q
         A[i, i - 1] = b
-        A[i, i + 1] = b
-        B[i] = f(x, y)
+        if i % n == n - 1:
+            B[i] = f(x, y) - b * phi(b1, y)
+        else:
+            A[i, i + 1] = b
+            B[i] = f(x, y)
+
         if i + n < n * (m - 1):
             A[i, i + n] = c
         else:
