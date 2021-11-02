@@ -12,6 +12,7 @@
 # %%
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 a1 = 0
 b1 = 1
@@ -157,3 +158,5 @@ ax.plot_surface(X, Y, u_t(X, Y) - u, cmap='plasma')
 plt.title("Residues")
 plt.savefig("Residues.png")
 plt.show()
+
+pd.DataFrame(u).to_csv("Numerical_solution.csv")
