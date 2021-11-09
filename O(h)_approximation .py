@@ -20,12 +20,14 @@ a2 = 0
 b2 = 2
 
 # кол-во промежутков по Ox
-n = 50
+n = 3
+# n = 50
 # шаг по Ox
 h1 = (b1 - a1) / n
 
 # кол-во промежутков по Oy
-m = 100
+m = 4
+# m = 100
 # шаг по Oy
 h2 = (b2 - a2) / m
 
@@ -65,6 +67,14 @@ def phi(x, y):
         raise IOError("Error in phi")
 
 
+def matrix_portrait(M, caption):
+    for i in range(len(M)):
+        for j in range(len(M)):
+            if M[i,j]!=0:
+                plt.plot(i+1,j+1,'b*')
+    plt.title(caption)
+    plt.show()
+
 # %%
 # формирование матрицы A и правой части b СЛАУ Au=b
 A = np.zeros((n * (m - 1), n * (m - 1)))
@@ -85,20 +95,24 @@ for i in range(n * (m - 1)):
     else:
         A[i, i] = a + q
         A[i, i - 1] = b
+        B[i] = f(x, y)
         if i % n == n - 1:
-            B[i] = f(x, y) - b * phi(b1, y)
+            B[i]-= b * phi(b1, y)
         else:
             A[i, i + 1] = b
-            B[i] = f(x, y)
+
+        if i - n > 0:
+            A[i, i - n] = c
+        else:
+            B[i] -= c * phi(x, a2)
 
         if i + n < n * (m - 1):
             A[i, i + n] = c
         else:
             B[i] -= c * phi(x, b2)
-        if i - n > 0:
-            A[i, i - n] = c
-        else:
-            B[i] -= c * phi(x, a2)
+
+
+matrix_portrait(A,"The matrix portrait")
 
 U = np.linalg.solve(A, B)
 u = np.zeros((m - 1, n))
@@ -107,14 +121,13 @@ for i in range(m - 1):
         u[i, j] = U[i * n + j]
 
 # print(u)
-Phi2 = np.array([[phi2(a1, a2 + i * h2) for i in range(m - 1)]]).T
+Phi2 = np.array([[phi2(b1, a2 + i * h2) for i in range(1,m)]]).T
 # print(Phi2)
 u = np.c_[u, Phi2]
 # The resulting function
 u = np.r_[np.array([[phi1(a1 + i * h1, a2) for i in range(n + 1)]]), u, np.array(
     [[phi3(a1 + i * h1, a2) for i in range(n + 1)]])]
 print("The resulting function", u)
-
 
 # %% Check
 def u_t(x, y):
@@ -131,6 +144,7 @@ for i in range(m + 1):
 
 MSE = (abs(u_t_d - u) ** 2).sum() / ((n + 1) * (m + 1))
 print("MSE: ", MSE)
+
 
 X = np.linspace(a1, b1, n + 1)
 Y = np.linspace(a2, b2, m + 1)
@@ -160,3 +174,4 @@ plt.savefig("Residues.png")
 plt.show()
 
 pd.DataFrame(u).to_csv("Numerical_solution.csv")
+
